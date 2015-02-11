@@ -1,8 +1,8 @@
 <script type='text/jsx'>
   /** @jsx React.DOM */
-  //<![CDATA[
+ //<![CDATA[
 
-  var FileTable = React.createClass({
+ var FileTable = React.createClass({
     getDefaultProps: function() {
       // Defines the columns used for the table and whether they
       // are sortable searchable. The default initially sorted
@@ -55,7 +55,7 @@
       document.getElementById('working').style.display = '';
 
       jQuery.ajax({
-     	url: '<%= populate_file_manager_assignment_submissions_path(id: @assignment.id, path: @path)%>',
+      	url: 'file_manager',
         method: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -80,10 +80,18 @@
       this.setState({error: error});
     },
     render: function() {
-      var file_data = this.state.files.map(function() {
-        var f = {};
+      var file_data = this.state.files.map(function(file) {
+      var f = {};
+
+        f['id'] = file.id;
+	f['file_name'] = file.file_name;
+	f['last_modified_date'] = file.last_modified_date;
+	f['revision_by'] = file.revision_by;
+	f['replace'] = file.replace;
+	f['delete_file'] = file.delete_file;	
+	
         return f;
-      }.bind(this));
+	}.bind(this));
 	
       	return (
 	<div>
@@ -97,6 +105,10 @@
 
   React.renderComponent(<FileTable />, document.getElementById('file_table'));
  
+  </script>
+
+<script type = "text/javascript">
+
   /*
  * Do the same as what would be done server side in terms
  * of filename sanitation. Warn the user what would happen
@@ -130,6 +142,6 @@ function check_change_of_filename(file_name, new_file_name, file_input) {
 }
   
   
-  //]]>
-  </script>
+//]]>
+</script>
 
