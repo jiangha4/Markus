@@ -1,5 +1,6 @@
 <script type='text/jsx'>
   /** @jsx React.DOM */
+  //<![CDATA[
 
   var FileTable = React.createClass({
     getDefaultProps: function() {
@@ -54,7 +55,7 @@
       document.getElementById('working').style.display = '';
 
       jQuery.ajax({
-        url: 'populate_file_manager_assignment_submissions_path',
+     	url: '<%= populate_file_manager_assignment_submissions_path(id: @assignment.id, path: @path)%>',
         method: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -95,4 +96,40 @@
   });
 
   React.renderComponent(<FileTable />, document.getElementById('file_table'));
-</script>
+ 
+  /*
+ * Do the same as what would be done server side in terms
+ * of filename sanitation. Warn the user what would happen
+ * if submit is pressed.
+ * See also: public/javascripts/file_manager.js
+ */
+function sanitized_filename_check(file_input) {
+  file_name = file_input.value.replace(/^.*[\\\/]/, '');
+  sanitized_filename = file_name.replace(/<%= SubmissionFile::FILENAME_SANITIZATION_REGEXP.source %>/g,
+  "<%= SubmissionFile::SUBSTITUTION_CHAR %>");
+  if (file_name != sanitized_filename) {
+    msg = <%=raw( I18n.t('student.submission.filename_sanitization_js_warning') )%>;
+    if( !confirm(msg) ) {
+      $(file_input).setValue('');
+    };
+  }
+}
+
+/*
+ * Check that new_file_name is the same as file_name. Otherwise
+ * refuse to accept the new filename. Note that this is called
+ * on the replace file upload button.
+ * See also: public/javascripts/file_manager.js
+ */
+function check_change_of_filename(file_name, new_file_name, file_input) {
+  new_file_name = normalize_filename(new_file_name);
+  if(file_name != new_file_name) {
+    alert(<%=raw( I18n.t('student.submission.replace_file_js_error') )%>);
+    $(file_input).setValue('');
+  }
+}
+  
+  
+  //]]>
+  </script>
+
