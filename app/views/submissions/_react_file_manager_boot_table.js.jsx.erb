@@ -1,8 +1,11 @@
 <script type='text/jsx'>
   /** @jsx React.DOM */
- //<![CDATA[
 
- var FileTable = React.createClass({
+  var FileTable = React.createClass({
+    propTypes: {
+	//Ensures that components are being used correctly
+	columns:React.PropTypes.array
+    },
     getDefaultProps: function() {
       // Defines the columns used for the table and whether they
       // are sortable searchable. The default initially sorted
@@ -13,7 +16,6 @@
             id: 'file_name',
             content: '<%= j raw I18n.t(:'browse_submissions.filename') %>',
             sortable: true,
-            searchable: true
           },
           {
             id: 'last_modified_data',
@@ -45,7 +47,7 @@
         selected_files: [],
       };
     },
-    componentWillMount: function() {
+    componentDidMount: function() {
       this.refresh();
     },
 
@@ -55,20 +57,17 @@
       document.getElementById('working').style.display = '';
 
       jQuery.ajax({
-      	url: 'file_manager',
+      	url: 'populate_file_manager',
         method: 'GET',
         dataType: 'json',
-        success: function(files) {
-          this.setState({
-            files: data,
-            error: null
-          });
+        success: function(data) {
+          this.setState({files: data});
         }.bind(this),
         error: function(xhr, status, text) {
-          var error = text + ': ' + xhr.responseText;
-          this.setState({
-            error: error
-          });
+           var error = text + ':' + xhr; 
+           this.setState({
+           	error: error
+           });
         }.bind(this),
         // Close working indicator.
         complete: function() {
@@ -80,7 +79,7 @@
       this.setState({error: error});
     },
     render: function() {
-      var file_data = this.state.files.map(function(file) {
+      var files_data = this.state.files.map(function(file) {
       	var f = {};
 
         f['id'] = file.id;
@@ -96,9 +95,11 @@
 	return (
 	<div>
 		<FileActionBox/>	
-	        <Table data={file_data}
-		  columns={this.props.columns}
-	 	/>
+		<Table data={files_data}
+		 columns={this.props.columns}
+		 selectable={true} />
+		 <ErrorDiv error={this.state.error} />
+
 	 </div>
 	);
     }
@@ -108,13 +109,17 @@
      getInitialState: function(){
      return{liked:false};
     },
-     handleClick: function(event){
-     this.set.state({liked: !state.liked})
+    handleClickNewFile: function(){
+    	console.log('Hi');
+	var table = document.getElementById("file_table");
+	var row = table.insertRow(1);
+	var cell1 = row.insertCell(0);
+	var cell2 = row.insertCell(1);
      },
     render: function(){
 	return(      
 	  <div className = 'react-buttons'>	
-	  <button onClick={injectFileInput}>
+	  	<button onClick={this.handleClickNewFile}>
 	   		<%= j raw I18n.t('add_new')%>
 	   	</button>
 		<button onClick={<%='set_onbeforeunload(false)'%>}>
@@ -124,7 +129,7 @@
 	   		<%= j raw I18n.t(:cancel)%>
 	   	</button>
 	  </div>
-	);
+	)
      }
     });
 
@@ -132,7 +137,7 @@ React.renderComponent(<FileTable/>, document.getElementById('file_table'));
 </script>
 
 <script type = "text/javascript">
-
+ //<![CDATA[
   /*
  * Do the same as what would be done server side in terms
  * of filename sanitation. Warn the user what would happen
