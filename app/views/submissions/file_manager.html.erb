@@ -132,7 +132,8 @@
 
     <div class='global_action'>
       <% if (@grouping.is_valid? && !@grouping.repository_external_commits_only?) %>
-        <%= button_to_function I18n.t('add_new'),
+	      <%= link_to_function I18n.t('add_new'), 'modal_addnew.open()'%>
+	      <%= button_to_function I18n.t('add_new'),
                                'injectFileInput(); set_onbeforeunload(true);' %>
       <% end %>
 

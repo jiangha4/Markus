@@ -1,3 +1,7 @@
+jQuery(document).ready(function (){
+	window.modal_addnew = new ModalMarkus('#addnewfile');	
+});
+
 // Add new row of input
 function injectFileInput() {
   var new_file_field = jQuery('<input>', {
